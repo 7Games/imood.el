@@ -11,6 +11,8 @@
 
 (require 'dom)
 
+(defvar imood//email "imood@bussy.rocks")
+
 ;; Yes these are all the moods, as of 2026-09-28
 ;; NOTE: Update every once in a while (imood//get-mood-list)
 (defconst imood//moods '("abandoned" "abnormal" "abused" "accepted" "accomplished" "achy"
@@ -179,10 +181,6 @@
                        (31 "31"         "👿")
                        (32 "32"         "🔰")))
 
-(nth 0 imood//faces)
-
-(defvar imood//email "imood@bussy.rocks")
-
 (defun imood--get (url)
   "Returns request to a given `URL'"
   (with-current-buffer (url-retrieve-synchronously url t)
@@ -206,17 +204,31 @@
       (message (format "Request sent back %i" (car resp)))))) ;; If we don't get back 200 then tell user
 
 (defun imood//get-current-mood (email)
+  "Returns profile and mood of `EMAIL'"
   (let ((resp (imood--get (concat "https://xml.imood.org/query.cgi?email=" email)))) ;; request
     (if (= (car resp) 200) ;; Error checking
-        (let ((xml (imood--html-to-xml-list (cadr resp))))
-          xml)
-      (message (format "Request sent back %i" (car resp)))))
-  )
+        (let* ((xml (imood--html-to-xml-list (cadr resp)))
+               (data (cdaddr xml)) ;; you laugh you go to hell
+               (full-mood (cl-find 'mood test :key #'car))
+               (mood    (nth 3 full-mood))
+               (mood-fixed (replace-regexp-in-string "\n" "" mood))
+               (face    (nth 2 (nth 5 full-mood)))
+               (face-fixed (string-to-number face))
+               (details (nth 2 (nth 4 full-mood))))
+          (list `(mood    . ,mood-fixed)
+                `(face    . ,face-fixed)
+                `(details . ,details)))
+      (message (format "Request sent back %i" (car resp))))))
 
 (defun imood//get-own-current-mood ()
+  "Get's own profile and mood"
   (imood//get-current-mood imood//email))
 
-(imood//get-mood-list)
+(defun imood//whats-my-mood ()
+  (interactive)
+  (let ((mood (imood//get-own-current-mood)))
+    (print (assoc 'mood mood))
+    (message (format "%s %s\n%s" (capitalize (cdr (assoc 'mood mood))) (nth 2 (nth (cdr (assoc 'face mood)) imood//faces)) (cdr (assoc 'details mood))))))
 
 (imood//get-own-current-mood)
 

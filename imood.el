@@ -144,6 +144,45 @@
                          "worried" "worthless" "wounded" "wretched" "wrong" "xenophilic" "young" "yucky" "yummy"
                          "zany" "zapped" "zealous" "zen" "zesty" "zoned" "zonked"))
 
+;; No specific function for this I just eyeball https://xml.imood.org/faces.cgi
+(defvar imood//faces '((0  "smiley"     "🙂") ;; id  .  internal name  .  emoji
+                       (1  "frowny"     "🙁")
+                       (2  "ragey"      "😡")
+                       (3  "blah"       "🫥")
+                       (4  "neutral"    "😶")
+                       (5  "angelic"    "😇")
+                       (6  "upsidedown" "🙃")
+                       (7  "confused"   "😕")
+                       (8  "embarassed" "😳")
+                       (9  "magical"    "🪄")
+                       (10 "sick"       "🤒")
+                       (11 "evil"       "😈")
+                       (12 "sleepy"     "🫩")
+                       (13 "13"         "🇺🇸")
+                       (14 "14"         "🥰")
+                       (15 "15"         "🤥")
+                       (16 "16"         "😏")
+                       (17 "17"         "😵")
+                       (18 "18"         "😸")
+                       (19 "19"         "🫤")
+                       (20 "20"         "♥️")
+                       (21 "21"         "👁️")
+                       (22 "22"         "😍")
+                       (23 "23"         "🤫")
+                       (24 "24"         "😢")
+                       (25 "25"         "🧛‍♂️")
+                       (26 "26"         "👽")
+                       (27 "27"         "🥶")
+                       (28 "28"         "🌈")
+                       (29 "29"         "😋")
+                       (30 "30"         "🤓")
+                       (31 "31"         "👿")
+                       (32 "32"         "🔰")))
+
+(nth 0 imood//faces)
+
+(defvar imood//email "imood@bussy.rocks")
+
 (defun imood--get (url)
   "Returns request to a given `URL'"
   (with-current-buffer (url-retrieve-synchronously url t)

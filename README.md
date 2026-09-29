@@ -1,6 +1,6 @@
 # imood.el
 
-Update [imood](https://imood.org) through Emacs.
+Update [imood](https://imood.com) through Emacs.
 
 ## How to install
 

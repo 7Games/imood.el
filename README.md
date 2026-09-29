@@ -17,7 +17,7 @@ Then you'll need to set your email and password
 (setq imood//password "password123")
 ```
 
-I'd reccomend you keep them in a seperate elisp file and load it in just like imood itself, just so you don't accidently leak anything.
+I'd recommend you keep them in a separate elisp file and load it in just like imood itself, just so you don't accidentally leak anything.
 
 ```lisp
 (load-file "path/to/imood.el")

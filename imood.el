@@ -250,6 +250,19 @@
     (print (assoc 'mood mood))
     (message (format "%s %s\n%s" (capitalize (cdr (assoc 'mood mood))) (nth 2 (nth (cdr (assoc 'face mood)) imood//faces)) (cdr (assoc 'details mood))))))
 
-(imood//get-own-current-mood)
+;; mood is a list of assoc ((mood . NUMBER) (face . NUMBER) (details . "STRING"))
+(defun imood//change-mood (moodlst)
+  "Changes the users mood"
+  (let* ((mood (nth (cdr (assoc 'mood moodlst)) imood//moods))
+         (face (number-to-string (nth 0 (nth (cdr (assoc 'face moodlst)) imood//faces))))
+         (details (cdr (assoc 'details moodlst)))
+         (resp (imood--get "https://xml.imood.org/update.cgi" `(("email" ,imood//email)
+                                                                ("password" ,imood//password)
+                                                                ("base" ,mood)
+                                                                ("face" ,face)
+                                                                ("personal" ,details))))) ;; request
+    (if (= (car resp) 200) ;; Error checking
+        (message "Mood updated!")
+      (message (format "Request sent back %i" (car resp))))))
 
 ;;; imood.el ends here

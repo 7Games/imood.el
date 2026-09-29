@@ -254,7 +254,7 @@
 ;; mood is a list of assoc ((mood . NUMBER) (face . NUMBER) (details . "STRING"))
 (defun imood//change-mood (moodlst)
   "Changes the users mood"
-  (let* ((mood (nth (cdr (assoc 'mood moodlst)) imood//moods))
+  (let* ((mood (cdr (assoc 'mood moodlst)))
          (face (number-to-string (nth 0 (nth (cdr (assoc 'face moodlst)) imood//faces))))
          (details (cdr (assoc 'details moodlst)))
          (resp (imood--get "https://xml.imood.org/update.cgi" `(("email" ,imood//email)
@@ -265,5 +265,27 @@
     (if (= (car resp) 200) ;; Error checking
         (message "Mood updated!")
       (message (format "Request sent back %i" (car resp))))))
+
+(defun imood//ask-for-face ()
+  "Asks user what face to use"
+  (let* ((faces (mapcar (lambda (faces)
+                          (concat (propertize (concat (number-to-string (nth 0 faces)) "|") 'invisible t)
+                                  (nth 2 faces)))
+                        imood//faces))
+         (face (split-string (completing-read "Pick a face: " faces) "|")))
+    (string-to-number (car face))))
+
+(defun imood//ask-for-mood ()
+  "Asks user what face to use"
+  (completing-read "Pick a mood: " imood//moods))
+
+(defun imood//update-mood ()
+  (interactive)
+  (let* ((mood (imood//ask-for-mood))
+         (face (imood//ask-for-face))
+         (details (read-from-minibuffer "What's up? " nil))
+         (sent `((mood . ,mood) (face . ,face) (details . ,details))))
+    (if (yes-or-no-p (concat "Are you sure you want to update to: " mood " " (nth 2 (nth face imood//faces)) " " details))
+        (imood//change-mood sent))))
 
 ;;; imood.el ends here

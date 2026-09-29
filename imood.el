@@ -12,7 +12,8 @@
 (require 'dom)
 (require 'url-util)
 
-(defvar imood//email "imood@bussy.rocks")
+(defvar imood//email "nil")
+(defvar imood//password "nil")
 
 ;; Yes these are all the moods, as of 2026-09-28
 ;; NOTE: Update every once in a while (imood//get-mood-list)

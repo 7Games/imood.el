@@ -10,6 +10,7 @@
 ;;; Code:
 
 (require 'dom)
+(require 'url-util)
 
 (defvar imood//email "imood@bussy.rocks")
 
@@ -181,12 +182,31 @@
                        (31 "31"         "👿")
                        (32 "32"         "🔰")))
 
-(defun imood--get (url)
+(defun imood--list-to-params (params)
+  "Converts a list of cons to url parameters"
+  (let ((str "")
+        (first t))
+    (dotimes (i (length params))
+      (when (nth i params)
+        (if first
+            (progn
+              (setq str (concat str "?"))
+              (setq first nil))
+          (setq str (concat str "&")))
+        (setq str (concat str (car (nth i params))))
+        (setq str (concat str "="))
+        (setq str (concat str (url-hexify-string (cadr (nth i params)))))))
+    str))
+
+(defun imood--get (base-url &optional params)
   "Returns request to a given `URL'"
+  (let ((url base-url))
+    (when params
+        (setq url (concat url (imood--list-to-params params))))
   (with-current-buffer (url-retrieve-synchronously url t)
     (prog1
         (list url-http-response-status (buffer-substring-no-properties url-http-end-of-headers (point-max)))
-      (kill-buffer))))
+      (kill-buffer)))))
 
 (defun imood--html-to-xml-list (html)
   "Unwraps an HTML request to get the XML and convert it to a list."
@@ -196,7 +216,7 @@
 
 (defun imood//get-mood-list ()
   "Returns full list of moods"
-  (let ((resp (imood--get "https://xml.imood.org/moods.cgi"))) ;; request
+  (let ((resp (imood--get "https://xml.imood.org/moods.cgi" ""))) ;; request
     (if (= (car resp) 200) ;; Error checking
         (let ((xml (imood--html-to-xml-list (cadr resp))))
           ;; Find all moods then put it into a list, also remove newline at the end
@@ -205,11 +225,11 @@
 
 (defun imood//get-current-mood (email)
   "Returns profile and mood of `EMAIL'"
-  (let ((resp (imood--get (concat "https://xml.imood.org/query.cgi?email=" email)))) ;; request
+  (let ((resp (imood--get "https://xml.imood.org/query.cgi" `(("email" ,email))))) ;; request
     (if (= (car resp) 200) ;; Error checking
         (let* ((xml (imood--html-to-xml-list (cadr resp)))
                (data (cdaddr xml)) ;; you laugh you go to hell
-               (full-mood (cl-find 'mood test :key #'car))
+               (full-mood (cl-find 'mood data :key #'car))
                (mood    (nth 3 full-mood))
                (mood-fixed (replace-regexp-in-string "\n" "" mood))
                (face    (nth 2 (nth 5 full-mood)))
